@@ -324,7 +324,7 @@ def api_update_letter(id):
     # REGENERATE LETTER
 
     letter.generated_letter = f"""
-Dear Hiring Manager,
+Dear  HR,
 
 My name is {letter.full_name} and I am applying
 for the position of {letter.role} at {letter.company_name}.
@@ -382,9 +382,9 @@ def api_delete_letter(id):
     })
 
 
-# ==========================================
-# CREATE DATABASE TABLES
-# ==========================================
+# =======================================
+# CREATE DATABASE TABLEs
+# =======================================
 
 with app.app_context():
     db.create_all()
