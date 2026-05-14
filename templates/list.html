@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Saved Cover Letters</title>
+</head>
+
+<body>
+
+    <h1>Saved Cover Letters</h1>
+
+    <a href="/create">
+        Create New Letter
+    </a>
+
+    <hr>
+
+    {% for letter in letters %}
+
+        <h3>{{ letter.full_name }}</h3>
+
+        <p>
+            Applying for {{ letter.role }}
+            at {{ letter.company_name }}
+        </p>
+
+        <a href="/view/{{ letter.id }}">
+            View
+        </a>
+
+        <a href="/edit/{{ letter.id }}">
+            Edit
+        </a>
+
+        <a href="/delete/{{ letter.id }}">
+            Delete
+        </a>
+
+        <hr>
+
+    {% endfor %}
+
+</body>
+
+</html>
