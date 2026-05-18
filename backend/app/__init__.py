@@ -16,15 +16,7 @@ def create_app():
     from app.config import Config
     app.config.from_object(Config)
     
-    origins = ["http://localhost:5173", "http://localhost:5174"]
-    frontend_url = app.config.get("FRONTEND_URL")
-    if frontend_url:
-        # Strip trailing slash if present
-        cleaned_url = frontend_url.rstrip('/')
-        if cleaned_url not in origins:
-            origins.append(cleaned_url)
-            
-    CORS(app, resources={r"/api/*": {"origins": origins}}, supports_credentials=True)
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
     
     db.init_app(app)
     migrate.init_app(app, db)
