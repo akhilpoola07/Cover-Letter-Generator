@@ -55,9 +55,27 @@ Do NOT include markdown formatting like ```json. Just raw JSON.
     # Fallback if no real API key
     if not api_key or api_key == "sk-placeholder" or api_key.startswith("your_"):
         skills_str = ', '.join(data.get('key_skills', []))
+        template_type = data.get('template_type', 'professional')
+        
+        # Calculate a mock ATS score based on keyword presence
+        desc = data.get('job_description', '').lower()
+        skills = [s.lower().strip() for s in data.get('key_skills', [])]
+        matched = sum(1 for s in skills if s in desc)
+        ats_score = min(98, 40 + (matched * 15)) if skills else 75
+        
+        # Generate varied text based on template
+        if template_type == 'creative':
+            body = f"I am excited to bring my creative vision and passion to the {data.get('job_title')} position at {data.get('company_name')}. My journey as a {data.get('current_job_title')} has been driven by innovation and out-of-the-box thinking. My core competencies include: {skills_str}."
+        elif template_type == 'minimal':
+            body = f"I am writing to apply for the {data.get('job_title')} position at {data.get('company_name')}. With {data.get('years_experience')} years as a {data.get('current_job_title')}, I bring a streamlined, results-driven approach. My skills include: {skills_str}."
+        else:
+            body = f"I am writing to express my strong interest in the {data.get('job_title')} position. With {data.get('years_experience')} years of experience as a {data.get('current_job_title')}, I am confident in my ability to make an immediate impact on your team at {data.get('company_name')}. My core competencies include: {skills_str}."
+            
+        cover_letter_text = f"{body}\n\nIn my previous experience, I have demonstrated success in several key areas. Notably, {data.get('achievements')}.\n\nThank you for your time and consideration.\n\nSincerely,\n{data.get('full_name')}"
+        
         return {
-            "cover_letter": f"{data.get('full_name')}\n{data.get('email')} | {data.get('phone')}\n\n[Date]\n\nHiring Manager\n{data.get('company_name')}\n\nDear Hiring Manager at {data.get('company_name')},\n\nI am writing to express my strong interest in the {data.get('job_title')} position. With {data.get('years_experience')} years of experience as a {data.get('current_job_title')}, I am confident in my ability to make an immediate impact on your team.\n\nIn my previous experience, I have demonstrated success in several key areas. Notably, {data.get('achievements')}. I believe these skills align perfectly with the requirements for the {data.get('job_title')} role.\n\nMy core competencies include: {skills_str}.\n\nThank you for your time and consideration.\n\nSincerely,\n{data.get('full_name')}",
-            "ats_score": 75
+            "cover_letter": cover_letter_text,
+            "ats_score": ats_score
         }
 
     try:

@@ -12,6 +12,7 @@ import Generate from './pages/dashboard/Generate';
 import Letters from './pages/dashboard/Letters';
 import LetterView from './pages/dashboard/LetterView';
 import Profile from './pages/dashboard/Profile';
+import ResetPassword from './pages/ResetPassword';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -25,7 +26,7 @@ const ProtectedRoute = ({ children }) => {
   }
   
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
   
   return children;
@@ -48,6 +49,7 @@ function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Auth initialMode="login" />} />
           <Route path="/signup" element={<Auth initialMode="signup" />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           
           <Route path="/dashboard" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
             <Route index element={<Overview />} />

@@ -57,6 +57,8 @@ def create_letter():
             tone=data.get('tone', 'professional'),
             length=data.get('length', 'medium'),
             highlight=data.get('highlight'),
+            template_type=data.get('template_type', 'professional'),
+            template_color=data.get('template_color', '#7F5DF4'),
             generated_content=data.get('generated_content'),
             ats_score=data.get('ats_score'),
             word_count=data.get('word_count'),

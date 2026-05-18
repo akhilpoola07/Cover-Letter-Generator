@@ -35,7 +35,8 @@ const Generate = () => {
     tone: 'professional',
     length: 'medium',
     highlight: 'Skills Match',
-    template_type: 'professional'
+    template_type: localStorage.getItem('preferred_template') || 'professional',
+    template_color: localStorage.getItem('preferred_template_color') || '#7F5DF4'
   });
 
   useEffect(() => {
@@ -54,22 +55,49 @@ const Generate = () => {
     if (name.startsWith('ed_')) {
       const field = name.replace('ed_', '');
       setFormData(prev => ({ ...prev, education: { ...prev.education, [field]: value } }));
+    } else if (name === 'template_type') {
+      const defaultColor = 
+        value === 'minimal' ? '#00B4D8' : 
+        value === 'creative' ? '#EF476F' : 
+        '#7F5DF4';
+      
+      // Save their new preference permanently for future letters
+      localStorage.setItem('preferred_template', value);
+      localStorage.setItem('preferred_template_color', defaultColor);
+      
+      setFormData(prev => ({ ...prev, template_type: value, template_color: defaultColor }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
   };
 
   const nextStep = () => {
-    // Validate current step
-    if (step === 1) {
-      if (!formData.full_name.trim() || !formData.email.trim() || !formData.phone.trim()) {
+    // Find all required fields in the active card step
+    const cardEl = document.querySelector('.card');
+    if (cardEl) {
+      const requiredInputs = Array.from(cardEl.querySelectorAll('input[required], textarea[required], select[required]'));
+      const firstInvalid = requiredInputs.find(input => !input.value || !input.value.trim());
+      
+      if (firstInvalid) {
         setShowErrors(true);
-        return toast.error('Please fill out all mandatory fields (Full Name, Email, Phone)');
+        firstInvalid.reportValidity(); // Auto-focuses and spawns native browser validation popup
+        return;
       }
+    }
+
+    // Step-specific custom structural validations
+    if (step === 1) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(formData.email)) {
         setShowErrors(true);
         return toast.error('Please enter a valid email address');
+      }
+
+      const cleanPhone = formData.phone.replace(/[\s\-()]/g, '');
+      const phoneRegex = /^\+?[0-9]{10,15}$/;
+      if (!phoneRegex.test(cleanPhone)) {
+        setShowErrors(true);
+        return toast.error('Please enter a valid phone number (must contain between 10 and 15 digits)');
       }
       
       const isValidUrl = (string) => {
@@ -86,20 +114,10 @@ const Generate = () => {
         return toast.error('Please enter a valid URL for Portfolio (include http:// or https://)');
       }
     } else if (step === 2) {
-      if (!formData.job_title.trim() || !formData.company_name.trim() || !formData.job_description.trim()) {
-        setShowErrors(true);
-        return toast.error('Please fill out all mandatory fields (Job Title, Company, Description)');
-      }
-      
       const vowelRegex = /[aeiouyAEIOUY]/;
       if (formData.job_title.trim().length > 3 && !vowelRegex.test(formData.job_title)) {
         setShowErrors(true);
         return toast.error('Job Title appears to be random text. Please enter a valid title.');
-      }
-    } else if (step === 3) {
-      if (!formData.current_job_title.trim() || !formData.key_skills.trim()) {
-        setShowErrors(true);
-        return toast.error('Please fill out all mandatory fields (Current Title, Key Skills)');
       }
     }
 
@@ -267,15 +285,27 @@ const Generate = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium mb-2">Current/Last Job Title *</label>
-                <input type="text" name="current_job_title" value={formData.current_job_title} onChange={handleChange} className="input-field" required />
+                <input type="text" name="current_job_title" value={formData.current_job_title} onChange={handleChange} className={`input-field ${showErrors && !formData.current_job_title.trim() ? 'border-red-500 bg-red-500/5' : ''}`} required />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2">Years of Experience</label>
-                <input type="number" name="years_experience" value={formData.years_experience} onChange={handleChange} className="input-field" />
+                <input 
+                  type="number" 
+                  name="years_experience" 
+                  value={formData.years_experience} 
+                  onChange={handleChange} 
+                  className="input-field" 
+                  min="0"
+                  onKeyDown={(e) => {
+                    if (e.key === '-' || e.key === 'e' || e.key === '+') {
+                      e.preventDefault();
+                    }
+                  }}
+                />
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium mb-2">Key Skills (comma separated) *</label>
-                <input type="text" name="key_skills" value={formData.key_skills} onChange={handleChange} className="input-field" placeholder="React, Python, Project Management, Agile" required />
+                <input type="text" name="key_skills" value={formData.key_skills} onChange={handleChange} className={`input-field ${showErrors && !formData.key_skills.trim() ? 'border-red-500 bg-red-500/5' : ''}`} placeholder="React, Python, Project Management, Agile" required />
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium mb-2">Top Achievements</label>

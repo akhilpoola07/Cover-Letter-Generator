@@ -32,7 +32,13 @@ const Auth = ({ initialMode = 'login' }) => {
     try {
       await login(loginEmail, loginPassword);
       toast.success('Welcome back!');
-      navigate('/dashboard');
+      
+      const pendingTemplate = sessionStorage.getItem('pending_template');
+      if (pendingTemplate) {
+        navigate('/dashboard/generate');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (error) {
       setLoginError(error.response?.data?.message || 'Login failed');
     } finally {
@@ -51,6 +57,18 @@ const Auth = ({ initialMode = 'login' }) => {
     
     if (signupPassword.length < 8 || !/[A-Z]/.test(signupPassword) || !/[0-9]/.test(signupPassword)) {
       toast.error('Password must be at least 8 characters long and contain at least one uppercase letter and one number.');
+      return;
+    }
+
+    if (!signupPhone.trim()) {
+      toast.error('Phone number is required');
+      return;
+    }
+
+    const cleanPhone = signupPhone.replace(/[\s\-()]/g, '');
+    const phoneRegex = /^\+?[0-9]{10,15}$/;
+    if (!phoneRegex.test(cleanPhone)) {
+      toast.error('Please enter a valid phone number (must contain between 10 and 15 digits)');
       return;
     }
 
@@ -223,6 +241,14 @@ const Auth = ({ initialMode = 'login' }) => {
                   try {
                     const res = await api.post('/auth/forgot-password', { email: loginEmail });
                     toast.success(res.data.message);
+                    if (res.data.link) {
+                      console.log("🔑 [CareerForge Dev Mode] Password Reset Link:", res.data.link);
+                      // Auto-redirect to the reset password page for easy local testing
+                      const url = new URL(res.data.link);
+                      setTimeout(() => {
+                        navigate(`${url.pathname}${url.search}`);
+                      }, 1500); // 1.5s delay so the user can read the success toast
+                    }
                   } catch (error) {
                     toast.error(error.response?.data?.message || 'Failed to send reset link');
                   }

@@ -15,6 +15,12 @@ def register():
     if User.query.filter_by(email=data['email']).first():
         return jsonify({'message': 'User already exists'}), 409
         
+    phone = data.get('phone')
+    if phone:
+        clean_phone = "".join(c for c in phone if c.isdigit())
+        if len(clean_phone) < 10 or len(clean_phone) > 15:
+            return jsonify({'message': 'Please enter a valid phone number (must contain between 10 and 15 digits)'}), 400
+        
     new_user = User(
         full_name=data['full_name'],
         email=data['email'],
@@ -90,7 +96,7 @@ def forgot_password():
         
     user = User.query.filter_by(email=email).first()
     if not user:
-        return jsonify({'message': 'If your email is registered, you will receive a reset link.'}), 200
+        return jsonify({'message': 'Email address not found. Please check your email or create a new account.'}), 404
         
     # Create a 15-minute token
     expires = datetime.timedelta(minutes=15)
@@ -105,8 +111,17 @@ def forgot_password():
     smtp_user = os.environ.get("SMTP_USERNAME")
     smtp_pass = os.environ.get("SMTP_PASSWORD")
     
-    if not all([smtp_server, smtp_port, smtp_user, smtp_pass]):
-        print(f"SMTP not configured. Reset link: {reset_url}")
+    # Check if SMTP is fully and uniquely configured (not using default placeholders)
+    placeholders = ["your-email@gmail.com", "your-app-password", "smtp.gmail.com", "", None]
+    is_configured = (
+        smtp_server and smtp_server not in placeholders and
+        smtp_port and
+        smtp_user and smtp_user not in placeholders and
+        smtp_pass and smtp_pass not in placeholders
+    )
+    
+    if not is_configured:
+        print(f"\n🔑 [CareerForge Dev Mode] SMTP not configured. Reset link: {reset_url}\n")
         return jsonify({
             'message': 'If your email is registered, you will receive a reset link. (SMTP not configured, link logged in console)',
             'link': reset_url

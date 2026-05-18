@@ -58,6 +58,119 @@ const LetterView = () => {
     }
   };
 
+  const renderDocumentPreview = () => {
+    const templateColor = letter.template_color || '#7F5DF4';
+
+    const firstName = letter.full_name ? letter.full_name.split(' ')[0].toUpperCase() : '';
+    const lastName = letter.full_name ? letter.full_name.split(' ').slice(1).join(' ').toUpperCase() : '';
+
+    if (letter.template_type === 'creative') {
+      return (
+        <div className="bg-white rounded-lg shadow-2xl flex min-h-[800px] overflow-hidden border border-gray-100 text-gray-800 animate-fade-in-up">
+          {/* Left Sidebar */}
+          <div className="w-1/4 text-white p-6 md:p-8 flex flex-col justify-between" style={{ backgroundColor: templateColor }}>
+            <div>
+              <div className="text-lg md:text-xl font-bold tracking-wider mb-1">{firstName}</div>
+              <div className="text-lg md:text-xl font-bold tracking-wider">{lastName}</div>
+              <div className="h-0.5 w-8 bg-white/40 mt-4"></div>
+            </div>
+            <div className="text-[10px] md:text-xs font-semibold tracking-wide uppercase opacity-90 leading-tight">
+              {letter.current_job_title || letter.job_title}
+            </div>
+          </div>
+          {/* Right Content */}
+          <div className="w-3/4 p-8 md:p-12 overflow-y-auto bg-white">
+            {isEditing ? (
+              <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                className="w-full h-full min-h-[700px] resize-none focus:outline-none text-gray-900 bg-transparent font-sans"
+                style={{ fontSize: '11pt', lineHeight: '1.6' }}
+              />
+            ) : (
+              <div 
+                className="whitespace-pre-wrap text-gray-900 font-sans"
+                style={{ fontSize: '11pt', lineHeight: '1.6' }}
+              >
+                {content}
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    if (letter.template_type === 'minimal') {
+      return (
+        <div 
+          className="bg-white rounded-lg shadow-2xl p-8 md:p-12 text-gray-900 font-sans min-h-[800px] border-t-[8px] border-solid animate-fade-in-up" 
+          style={{ borderTopColor: templateColor }}
+        >
+          <div className="mb-8 border-b border-gray-100 pb-6">
+            <div className="text-xl md:text-2xl font-bold tracking-tight mb-1" style={{ color: templateColor }}>
+              {letter.full_name?.toUpperCase()}
+            </div>
+            <div className="text-[10px] md:text-xs text-gray-400 uppercase tracking-wider font-semibold">
+              {letter.current_job_title || letter.job_title}
+            </div>
+          </div>
+          
+          {isEditing ? (
+            <textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              className="w-full h-full min-h-[600px] resize-none focus:outline-none text-gray-900 bg-transparent font-sans"
+              style={{ fontSize: '11pt', lineHeight: '1.6' }}
+            />
+          ) : (
+            <div 
+              className="whitespace-pre-wrap text-gray-900 font-sans"
+              style={{ fontSize: '11pt', lineHeight: '1.6' }}
+            >
+              {content}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // Default 'professional' layout
+    return (
+      <div className="bg-white rounded-lg shadow-2xl p-8 md:p-12 text-gray-900 font-sans min-h-[800px] border border-gray-100 animate-fade-in-up">
+        <div className="mb-8 border-b border-gray-100 pb-6">
+          <div className="text-2xl md:text-3xl font-bold tracking-wide mb-1" style={{ color: templateColor }}>
+            {letter.full_name}
+          </div>
+          <div className="text-xs md:text-sm text-gray-500 font-medium flex items-center space-x-2">
+            <span>{letter.email}</span>
+            {letter.phone && (
+              <>
+                <span className="text-gray-300">•</span>
+                <span>{letter.phone}</span>
+              </>
+            )}
+          </div>
+        </div>
+        
+        {isEditing ? (
+          <textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            className="w-full h-full min-h-[650px] resize-none focus:outline-none text-gray-900 bg-transparent font-sans"
+            style={{ fontSize: '11pt', lineHeight: '1.6' }}
+          />
+        ) : (
+          <div 
+            className="whitespace-pre-wrap text-gray-900 font-sans"
+            style={{ fontSize: '11pt', lineHeight: '1.6' }}
+          >
+            {content}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   if (loading) return <div className="p-8 text-center"><div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-accent mx-auto"></div></div>;
   if (!letter) return null;
 
@@ -99,23 +212,7 @@ const LetterView = () => {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         {/* Document Preview */}
         <div className="lg:col-span-3">
-          <div className="bg-white rounded-lg shadow-2xl p-8 md:p-12 text-gray-900 font-sans min-h-[800px]">
-            {isEditing ? (
-              <textarea
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                className="w-full h-full min-h-[700px] resize-none focus:outline-none text-gray-900 bg-transparent"
-                style={{ fontSize: '11pt', lineHeight: '1.6' }}
-              />
-            ) : (
-              <div 
-                className="whitespace-pre-wrap"
-                style={{ fontSize: '11pt', lineHeight: '1.6' }}
-              >
-                {content}
-              </div>
-            )}
-          </div>
+          {renderDocumentPreview()}
         </div>
 
         {/* Sidebar Insights */}
@@ -138,15 +235,15 @@ const LetterView = () => {
             </div>
           </div>
 
-          <div className="card bg-gradient-to-br from-surface to-gray-800 border-accent/30">
-            <h3 className="font-bold mb-4 flex items-center"><Check size={18} className="mr-2 text-green-400" /> ATS Analysis</h3>
+          <div className="card">
+            <h3 className="font-bold mb-4 flex items-center"><Check size={18} className="mr-2 text-green-500" /> ATS Analysis</h3>
             <div className="mb-4">
               <div className="flex justify-between items-end mb-1">
                 <span className="text-sm text-textMuted">Match Score</span>
-                <span className="text-2xl font-bold text-green-400">{letter.ats_score}%</span>
+                <span className="text-2xl font-bold text-green-500">{letter.ats_score}%</span>
               </div>
-              <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
-                <div className="h-full bg-green-400" style={{ width: `${letter.ats_score}%` }}></div>
+              <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div className="h-full bg-green-500" style={{ width: `${letter.ats_score}%` }}></div>
               </div>
             </div>
             <p className="text-xs text-textMuted leading-relaxed">

@@ -31,6 +31,8 @@ class CoverLetter(db.Model):
     tone = db.Column(db.String(50), default='professional')
     length = db.Column(db.String(50), default='medium')
     highlight = db.Column(db.String(100), nullable=True)
+    template_type = db.Column(db.String(50), default='professional')
+    template_color = db.Column(db.String(50), default='#7F5DF4')
     
     generated_content = db.Column(db.Text, nullable=True)
     ats_score = db.Column(db.Integer, nullable=True)
@@ -76,6 +78,8 @@ class CoverLetter(db.Model):
             'tone': self.tone,
             'length': self.length,
             'highlight': self.highlight,
+            'template_type': self.template_type,
+            'template_color': self.template_color,
             'generated_content': self.generated_content,
             'ats_score': self.ats_score,
             'word_count': self.word_count,

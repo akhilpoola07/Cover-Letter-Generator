@@ -64,7 +64,12 @@ const Login = () => {
                     const res = await api.post('/auth/forgot-password', { email });
                     toast.success(res.data.message);
                     if (res.data.link) {
-                      console.log("Demo Reset Link:", res.data.link);
+                      console.log("🔑 [CareerForge Dev Mode] Password Reset Link:", res.data.link);
+                      // Auto-redirect to the reset password page for easy local testing
+                      const url = new URL(res.data.link);
+                      setTimeout(() => {
+                        navigate(`${url.pathname}${url.search}`);
+                      }, 1500);
                     }
                   } catch (error) {
                     toast.error(error.response?.data?.message || 'Failed to send reset link');

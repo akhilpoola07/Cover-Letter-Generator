@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, FileText, CheckCircle, Zap, Shield, Download, X, ZoomIn, Sparkles, Mail, MessageSquare, Feather } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const Landing = () => {
   console.log("Landing component rendering");
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [selectedTemplate, setSelectedTemplate] = useState(null);
 
   // 12 templates
@@ -323,13 +326,25 @@ const Landing = () => {
               <div className="text-sm text-gray-600">
                 This is a preview of the <span className="font-bold">{selectedTemplate.title}</span> template.
               </div>
-              <Link 
-                to="/signup" 
+              <button 
+                onClick={() => {
+                  if (selectedTemplate) {
+                    const templateType = selectedTemplate.type; // 'professional', 'minimal', or 'creative'
+                    const templateColor = selectedTemplate.color; // hex color string
+                    localStorage.setItem('preferred_template', templateType);
+                    localStorage.setItem('preferred_template_color', templateColor);
+                    if (user) {
+                      navigate('/dashboard/generate');
+                    } else {
+                      navigate('/login');
+                    }
+                  }
+                }}
                 className="bg-[#7F5DF4] text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-[#6A4CE0] transition-colors shadow-lg shadow-[#7F5DF4]/20 flex items-center"
               >
                 Use This Template
                 <ArrowRight size={14} className="ml-2" />
-              </Link>
+              </button>
             </div>
           </div>
         </div>
