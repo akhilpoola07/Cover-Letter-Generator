@@ -33,8 +33,8 @@ A professional and automated cover letter generator that helps you craft tailore
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/ranjithkumar077/COVER-LETTER-GENERATOR-.git
-   cd COVER-LETTER-GENERATOR-
+   git clone https://github.com/akhilpoola07/Cover-Letter-Generator-.git
+   cd Cover-Letter-Generator
    ```
 
 2. Setup Backend:
@@ -92,4 +92,4 @@ A professional and automated cover letter generator that helps you craft tailore
 *Letter Generation Form*
 
 ---
-Made with ❤️ by Ranjith Kumar
+Made with ❤️ by Akhil
